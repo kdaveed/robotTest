@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 var fs = require('fs')
+var _ = require('underscore')
+
+const testLib = require('./testLib').testLib;
 
 var dates = ["20171218", "20171219", "20171220"]
-
 
 if (process.argv.length <= 2) {
     console.log("Usage: ***.js directory");
@@ -11,112 +13,53 @@ if (process.argv.length <= 2) {
 }
 
 var folder = process.argv[2]
-var datesPath = folder + "/dates.json";
-var rootFolder = folder + "root";
 
-console.log(datesPath)
-console.log(rootFolder)
+var paths = testLib.getFolderVars(folder)
+var dates = testLib.getDates(paths.dates)
 
+testLib.deleteFolderRecursive(paths.result)
 
-// fs.readFile('dates.json', 'utf8', function(err, data){
-//     if(err){
-//       console.log(err)
-//       process.exit(-1);
-//     } else {
-//       console.log(JSON.parse(data))
-//     }
-// })
+var run  = function(){
 
-//Delete result folder
-var deleteFolderRecursive = function(path) {
-  if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
-};
+  fs.readdirSync(paths.root).forEach(function(folderName) {
 
-//deleteFolderRecursive(folder + "/result")
-var copy = function(folderName, fileName){
-
-  //Create file dir
-  var sourceFolder = folder + "/root/" + folderName
-  var targetFolder = folder + "/result/" + folderName
-
-  createDir(targetFolder);
-
-  var sourceFile = sourceFolder + "/" + fileName
-  var targetFile = targetFolder + "/" + fileName
-
-  //Copy file
-  fs.createReadStream(sourceFile).pipe(fs.createWriteStream(targetFile));
-}
-
-var createDir = function(path){
-
-  if(!fs.existsSync(path)){
-    fs.mkdir(path, function(err, data){
-      if(err){
-        console.log(err)
-      }
-    })
-  }
-}
-
-//copy("a", "a_a.txt")
-
-fs.readdirSync("./" + folder).forEach(function(item) {
-
-    var file = "./" + folder + "/" + item;
-    console.log(file)
+    var file = paths.root + "/" + folderName
+    console.log(folderName)
     if(fs.lstatSync(file).isDirectory()){
         fs.readdirSync(file).forEach(function(iitem){
           console.log("\t" + iitem)
       })
     }
-})
-
-
-var check = function(filePath){
-
-  switch(contains(filePath)){
-
-    case "yes" :
-
-      break;
-    case "no" :
-
-      break;
-    case "undecideable" :
-
-      break;
-  }
-}
-
-var contains = function(filePath){
-
-  //Iterate on input dates
-  var result = []
-  dates.forEach(function(date){
-    //Read files
-    fs.readFile(filePath, "utf8", function(err, data) {
-      result.push(getAllIndexes(data,"a").length > 0)
-    });
   })
 }
 
-function getAllIndexes(arr, val) {
-    var indexes = [], i;
-    for(i = 0; i < arr.length; i++)
-        if (arr[i] === val)
-            indexes.push(i);
-    return indexes;
+run()
+
+var check = function(folderName, fileName){
+
+  var filePath = folderName + "/" + fileName
+  testLib.copy(getFolder(filePath), folderName, fileName)
 }
 
-contains("1.txt")
+var getFolder = function(filePath){
+
+  //Iterate on input dates
+  var results = []
+  testLib.dates.forEach(function(date){
+    //Read files
+    fs.readFile(filePath, "utf8", function(err, data) {
+      results.push(getAllIndexes(data,"a").length > 0)
+    });
+
+    //Get the number of found dates
+    var resultObject = _.countBy(results)
+    switch(resultObject.true){
+      case 0 :
+        return "notFound"
+      case 1 :
+        return dates[_.indexOf(results, true)]
+      default :
+        return "multiple"
+    }
+  })
+}
