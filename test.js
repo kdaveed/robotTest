@@ -4,13 +4,15 @@ var fs = require('fs')
 
 var dates = ["20171218", "20171219", "20171220"]
 
+
 if (process.argv.length <= 2) {
     console.log("Usage: ***.js directory");
     process.exit(-1);
 }
 
-var datesPath = process.argv[2] + "/dates.json";
-var rootFolder = process.argv[2] + "root";
+var folder = process.argv[2]
+var datesPath = folder + "/dates.json";
+var rootFolder = folder + "root";
 
 console.log(datesPath)
 console.log(rootFolder)
@@ -24,8 +26,24 @@ fs.readFile('dates.json', 'utf8', function(err, data){
     }
 })
 
+//Delete result folder
 
-fs.mkdir
+var deleteFolderRecursive = function(path) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function(file, index){
+      var curPath = path + "/" + file;
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+};
+
+deleteFolderRecursive(folder + "/result")
+
 
 /*
 fs.readdir(path, function(err, items) {
