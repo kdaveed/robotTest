@@ -2,6 +2,8 @@
 
 var fs = require('fs')
 var _ = require('underscore')
+var log = require('loglevel');
+log.setLevel("debug")
 
 const testLib = require('./testLib').testLib;
 
@@ -30,35 +32,39 @@ var run  = function(){
     if(fs.lstatSync(dir).isDirectory()){
         fs.readdirSync(dir).forEach(function(item){
 
-          targetDir = paths.result + "/" + getFolder(dir + "/" + item)
-          testLib.copy(dir, targetDir, fileName)
+          var dateFolder = getDateFolder(dir + "/" + item)
+          log.debug("dateFolder : " + dateFolder)
+          targetDir = paths.result + "/" + dateFolder + "/" + folderName
+          testLib.copy(dir, targetDir, item)
       })
     }
   })
 }
 
-var getFolder = function(filePath){
+var getDateFolder = function(filePath){
 
+  log.debug("getDateFolder : " + filePath)
   //Iterate on input dates
+  var folder;
+  var content = fs.readFileSync(filePath, "utf8")
+  log.debug("content : " + content)
+  var results = []
   dates.forEach(function(date){
-
-    var results = []
-    //Read files
-    fs.readFile(filePath, "utf8", function(err, data) {
-      results.push(getAllIndexes(data,"a").length > 0)
-    });
-
+    results.push(testLib.getAllIndexes(content, date).length > 0)
     //Get the number of found dates
-    var resultObject = _.countBy(results)
-    switch(resultObject.true){
-      case 0 :
-        return "notFound"
-      case 1 :
-        return dates[_.indexOf(results, true)]
-      default :
-        return "multiple"
-    }
+    //log.debug("resultArray : " + JSON.stringify(results))
+    //log.debug("resultObject : " + JSON.stringify(resultObject))
   })
+
+  var resultObject = _.countBy(results)
+  switch(resultObject.true){
+    case 0 :
+      return "notFound"
+    case 1 :
+      return dates[_.indexOf(results, true)]
+    default :
+      return "multiple"
+  }
 }
 
 run()
