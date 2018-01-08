@@ -17,14 +17,15 @@ var rootFolder = folder + "root";
 console.log(datesPath)
 console.log(rootFolder)
 
-fs.readFile('dates.json', 'utf8', function(err, data){
-    if(err){
-      console.log(err)
-      process.exit(-1);
-    } else {
-      console.log(JSON.parse(data))
-    }
-})
+
+// fs.readFile('dates.json', 'utf8', function(err, data){
+//     if(err){
+//       console.log(err)
+//       process.exit(-1);
+//     } else {
+//       console.log(JSON.parse(data))
+//     }
+// })
 
 //Delete result folder
 var deleteFolderRecursive = function(path) {
@@ -68,21 +69,21 @@ var createDir = function(path){
   }
 }
 
-copy("a", "a_a.txt")
+//copy("a", "a_a.txt")
 
+fs.readdirSync("./" + folder).forEach(function(item) {
 
-/*
-fs.readdir(path, function(err, items) {
-
-    console.log(items);
-    for (var i=0; i<items.length; i++) {
-        console.log(items[i]);
+    var file = "./" + folder + "/" + item;
+    console.log(file)
+    if(fs.lstatSync(file).isDirectory()){
+        fs.readdirSync(file).forEach(function(iitem){
+          console.log("\t" + iitem)
+      })
     }
+})
 
-});
-*/
 
-var chech = function(filePath){
+var check = function(filePath){
 
   switch(contains(filePath)){
 
