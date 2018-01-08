@@ -24,16 +24,14 @@ fs.readFile('dates.json', 'utf8', function(err, data){
     }
 })
 
-
-
-
 /*
 fs.readdir(path, function(err, items) {
-    console.log(items);
 
+    console.log(items);
     for (var i=0; i<items.length; i++) {
         console.log(items[i]);
     }
+
 });
 */
 
