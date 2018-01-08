@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
+var fs = require('fs')
 
 var dates = ["20171218", "20171219", "20171220"]
 
@@ -15,7 +15,17 @@ var rootFolder = process.argv[3];
 console.log(datesPath)
 console.log(rootFolder)
 
-process.exit(-1)
+fs.readFile('dates.json', 'utf8', function(err, data){
+    if(err){
+      console.log(err)
+      process.exit(-1);
+    } else {
+      console.log(JSON.parse(data))
+    }
+})
+
+
+
 
 /*
 fs.readdir(path, function(err, items) {
@@ -41,18 +51,6 @@ var chech = function(filePath){
 
       break;
   }
-}
-
-var readInput = function(){
-
-  fs.readFile('dates.json', 'utf8', function(err, data){
-      if(err){
-        console.log(err)
-        process.exit(-1);
-      } else {
-        console.log(JSON.parse(data))
-      }
-  })
 }
 
 var contains = function(filePath){
