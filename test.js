@@ -4,13 +4,13 @@ var fs = require('fs')
 
 var dates = ["20171218", "20171219", "20171220"]
 
-if (process.argv.length <= 3) {
-    console.log("Usage: ***.js inputJSON rootFolder");
+if (process.argv.length <= 2) {
+    console.log("Usage: ***.js directory");
     process.exit(-1);
 }
 
-var datesPath = process.argv[2];
-var rootFolder = process.argv[3];
+var datesPath = process.argv[2] + "/dates.json";
+var rootFolder = process.argv[2] + "root";
 
 console.log(datesPath)
 console.log(rootFolder)
@@ -23,6 +23,9 @@ fs.readFile('dates.json', 'utf8', function(err, data){
       console.log(JSON.parse(data))
     }
 })
+
+
+fs.mkdir
 
 /*
 fs.readdir(path, function(err, items) {

@@ -1,1 +1,1 @@
-./test.js testFiles/dates.json testFiles/root
+./test.js testFiles
