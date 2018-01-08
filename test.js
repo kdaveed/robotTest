@@ -27,7 +27,6 @@ fs.readFile('dates.json', 'utf8', function(err, data){
 })
 
 //Delete result folder
-
 var deleteFolderRecursive = function(path) {
   if (fs.existsSync(path)) {
     fs.readdirSync(path).forEach(function(file, index){
@@ -42,7 +41,34 @@ var deleteFolderRecursive = function(path) {
   }
 };
 
-deleteFolderRecursive(folder + "/result")
+//deleteFolderRecursive(folder + "/result")
+var copy = function(folderName, fileName){
+
+  //Create file dir
+  var sourceFolder = folder + "/root/" + folderName
+  var targetFolder = folder + "/result/" + folderName
+
+  createDir(targetFolder);
+
+  var sourceFile = sourceFolder + "/" + fileName
+  var targetFile = targetFolder + "/" + fileName
+
+  //Copy file
+  fs.createReadStream(sourceFile).pipe(fs.createWriteStream(targetFile));
+}
+
+var createDir = function(path){
+
+  if(!fs.existsSync(path)){
+    fs.mkdir(path, function(err, data){
+      if(err){
+        console.log(err)
+      }
+    })
+  }
+}
+
+copy("a", "a_a.txt")
 
 
 /*
