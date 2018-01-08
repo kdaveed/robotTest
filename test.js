@@ -21,6 +21,7 @@ console.log("Dates")
 console.log(dates)
 
 testLib.deleteFolderRecursive(paths.result)
+testLib.createDir(paths.result)
 
 var run  = function(){
 
@@ -34,7 +35,7 @@ var run  = function(){
 
           var dateFolder = getDateFolder(dir + "/" + item)
           log.debug("dateFolder : " + dateFolder)
-          targetDir = paths.result + "/" + dateFolder + "/" + folderName
+          targetDir = paths.result + "/" + dateFolder //+ "/" + folderName
           testLib.copy(dir, targetDir, item)
       })
     }

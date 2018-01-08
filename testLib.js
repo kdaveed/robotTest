@@ -34,6 +34,7 @@ var testLib = {
 
   copy : function(sourceFolder, targetFolder, fileName){
 
+    log.debug("createDir : " + targetFolder)
     this.createDir(targetFolder);
     var sourceFile = sourceFolder + "/" + fileName
     var targetFile = targetFolder + "/" + fileName
@@ -44,11 +45,7 @@ var testLib = {
   createDir : function(path){
 
     if(!fs.existsSync(path)){
-      fs.mkdir(path, function(err, data){
-        if(err){
-          console.log(err)
-        }
-      })
+      fs.mkdirSync(path)
     }
   },
 
