@@ -1,5 +1,6 @@
 var fs = require('fs')
-
+var log = require('loglevel');
+log.setLevel("debug")
 
 var testLib = {
 
@@ -13,7 +14,8 @@ var testLib = {
   },
 
   getDates : function(datePath){
-    JSON.parse(fs.readFileSync(datePath, 'utf8'))
+    log.debug("getDates : " + datePath)
+    return JSON.parse(fs.readFileSync(datePath, 'utf8'))
   },
 
   deleteFolderRecursive : function(path) {
@@ -30,17 +32,11 @@ var testLib = {
     }
   },
 
-  copy : function(date, folderName, fileName){
-
-    //Create file dir
-    var sourceFolder = this.rootFolder + folderName
-    var targetFolder = this.resultFolder + "/" + date + "/" + folderName
+  copy : function(sourceFolder, targetFolder, fileName){
 
     this.createDir(targetFolder);
-
     var sourceFile = sourceFolder + "/" + fileName
     var targetFile = targetFolder + "/" + fileName
-
     //Copy file
     fs.createReadStream(sourceFile).pipe(fs.createWriteStream(targetFile));
   },
