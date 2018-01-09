@@ -57,6 +57,13 @@ var csFolder = "./csResult/"
 var emihFolder = "./emih_data_dec/result"
 var file = { cs : {}, emih : {}}
 
+var compare = {
+  match : [],
+  missing : {
+    cs : [],
+    emih : [],
+  },
+}
 
 var run = function(){
 
@@ -79,16 +86,48 @@ var setFile = function(path, type){
   }
 }
 
-var compare = function(){
+var run = function(){
 
-  //Looking for duplicates
-  checkDuplicates(file.cs)
-  checkDuplicates(file.cs)
+  checkDuplicates("cs")
+  checkDuplicates("emih")
+  compare("cs", "emih")
+}
 
-  //Compate
-  for(fileName in files.cs){
+var compare = function(files, type1, type2){
 
+  var compare = {
+    match : [],
+    missing : {
+      cs : [],
+      emih : [],
+    },
   }
+
+  //Compare
+  for(fileName1 in files[type1]){
+    content1 = files[type1][fileName1]
+    for(fileName2 in files[type2]){
+      content2 = files[type2][fileName2]
+      if(content1 == content2){
+        var match = {}
+        match[type1] = fileName1
+        match[type2] = fileName2
+        compare.match.push(match)
+        delete files[type1][fileName1]
+        delete files[type2][fileName2]
+      }
+    }
+  }
+
+  //Set missing files
+  for(fileName1 in files[type1]){
+    compare.missing[type1].push(fileName1)
+  }
+  for(fileName2 in files[type2]){
+    compare.missing[type2].push(fileName2)
+  }
+
+  return compare;
 }
 
 var checkDuplicates = function(fileMap){
@@ -113,12 +152,12 @@ var checkDuplicates = function(fileMap){
       }
     })
   })
+
   //Removing duplicates
   duplicates.forEach(function(duplicate){
     delete fileMap[fileNames[duplicate]]
   })
 }
-
 
 //Test
 var fileMap = {
@@ -127,5 +166,20 @@ var fileMap = {
   c : "aaa",
 }
 
+var compareTest = {
+
+  cs : {
+    a_cs : "aaa",
+    b_cs : "bbbb",
+  },
+  emih : {
+    a_e : "aaa",
+    b_e : "bbbb",
+    c_e : "klsddkl",
+  }
+}
+
 checkDuplicates(fileMap)
 console.log(fileMap)
+
+console.log(compare(compareTest, "cs", "emih"))
