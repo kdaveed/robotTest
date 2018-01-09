@@ -1,6 +1,6 @@
 var fs = require('fs')
 var log = require('loglevel');
-log.setLevel("debug")
+//log.setLevel("debug")
 
 var testLib = {
 
@@ -55,7 +55,30 @@ var testLib = {
           if (arr[i] === val)
               indexes.push(i);
       return indexes;
+  },
+
+  getAllIndexes_2 : function(arr, val){
+
+      var indexes = [], index, i;
+      while(true){
+        index = arr.indexOf(val)
+        if(index == -1){
+          break
+        } else {
+          indexes.push(index)
+          arr = arr.substring(index)
+        }
+      }
+      //Continoue
   }
+
 }
 
 exports.testLib = testLib
+
+
+//Tests
+var string = "abc________abc_________abc"
+var key = "abc"
+
+//var indexes = testLib.getAllIndexes_2(string, key)

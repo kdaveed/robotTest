@@ -3,7 +3,7 @@
 var fs = require('fs')
 var _ = require('underscore')
 var log = require('loglevel');
-log.setLevel("debug")
+//log.setLevel("debug")
 
 const testLib = require('./testLib').testLib;
 
@@ -17,6 +17,8 @@ var folder = process.argv[2]
 var paths = testLib.getFolderVars(folder)
 var dates = testLib.getDates(paths.dates)
 
+console.log("dates")
+console.log(JSON.stringify(dates))
 testLib.deleteFolderRecursive(paths.result)
 testLib.createDir(paths.result)
 
@@ -30,9 +32,11 @@ var run  = function(){
     if(fs.lstatSync(dir).isDirectory()){
         fs.readdirSync(dir).forEach(function(item){
 
+          console.log("Dir : " + dir + " / " + item)
           var dateFolder = getDateFolder(dir + "/" + item)
           log.debug("dateFolder : " + dateFolder)
-          targetDir = paths.result + "/" + dateFolder //+ "/" + folderName
+          testLib.createDir(paths.result + "/" + dateFolder)
+          targetDir = paths.result + "/" + dateFolder + "/" + folderName
           testLib.copy(dir, targetDir, item)
       })
     }
@@ -48,14 +52,20 @@ var getDateFolder = function(filePath){
   log.debug("content : " + content)
   var results = []
   dates.forEach(function(date){
-    results.push(testLib.getAllIndexes(content, date).length > 0)
+    //results.push(testLib.getAllIndexes(content, date).length > 0)
+    console.log(date)
+    results.push(content.indexOf(date) >= 0)
   })
+
+  console.log(content.indexOf("20171218"))
+  console.log(results)
 
   var resultObject = _.countBy(results)
   switch(resultObject.true){
     case undefined :
       return "notFound"
     case 1 :
+      log.debug("Found -------------------.................------------")
       return dates[_.indexOf(results, true)]
     default :
       return "multiple"
