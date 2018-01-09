@@ -1,1 +1,1 @@
-./test.js testFiles
+./main.js testFiles
