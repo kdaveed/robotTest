@@ -114,6 +114,31 @@ var testLib = {
     }).bind(this))
   },
 
+  getDescriptor : function(folderPath){
+    var object = {}
+    //object.path = folderPath
+    object.folders = {}
+    object.files = {}
+    fs.readdirSync(folderPath).forEach((function(subFolder){
+
+      var subPath = `${folderPath}/${subFolder}`
+      var fileStat = fs.lstatSync(subPath)
+      if(fileStat.isDirectory()){
+        object.folders[subFolder] = this.getDescriptor(subPath)
+      } else {
+        if(object.files[fileStat.size] === undefined){
+          object.files[fileStat.size] = []
+        }
+        object.files[fileStat.size].push(subFolder)
+      }
+    }).bind(this))
+    if(Object.keys(object.files).length === 0) delete object.files
+    if(Object.keys(object.folders).length === 0) delete object.folders
+
+    return object
+  },
+
+
   //Process steps
   copyEmihFiles : function(){
     var sourceDir = this.path.emih_data_text + this.date
@@ -128,20 +153,28 @@ var testLib = {
 
     var nameMap = "./mappings/csToID.json"
     var map = JSON.parse(fs.readFileSync(nameMap,  'utf8'))
-    console.log(map)
     this.renameSubFolders(map, this.path.test_input_emih_text + this.date)
   },
 
   getCSFiles : function(){
 
-    copyDir.sync(grnt + this.date, this.path.test_input_cs_text + this.date)
-    copyDir.sync(kdb + this.date, this.path.test_input_cs_text + this.date)
-
-
+    var destDir = this.path.test_input_cs_text + this.date
+    this.deleteFolderRecursive(destDir)
+    copyDir.sync(grnt + this.date, destDir)
+    copyDir.sync(kdb + this.date, destDir)
   },
 
   getFolderDescriptors : function(){
+    var outputPath =  this.path.result_text + this.date
+    this.createDir(outputPath)
 
+    //CS
+    var cs = this.getDescriptor(this.path.test_input_cs_text + this.date)
+    fs.writeFileSync(outputPath + "/cs.json", JSON.stringify(cs, null, 2))
+
+    //EMIH
+    var emih = this.getDescriptor(this.path.test_input_emih_text + this.date)
+    fs.writeFileSync(outputPath + "/emih.json", JSON.stringify(emih, null, 2))
   },
 
   performTests : function(){

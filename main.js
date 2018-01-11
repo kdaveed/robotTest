@@ -19,6 +19,7 @@ var dates = testLib.getDates(paths.dates)
 
 console.log("dates")
 console.log(JSON.stringify(dates))
+
 testLib.deleteFolderRecursive(paths.result)
 testLib.createDir(paths.result)
 
@@ -31,8 +32,6 @@ var run  = function(){
     log.debug(folderName)
     if(fs.lstatSync(dir).isDirectory()){
         fs.readdirSync(dir).forEach(function(item){
-
-          console.log("Dir : " + dir + " / " + item)
           var dateFolder = getDateFolder(dir + "/" + item)
           log.debug("dateFolder : " + dateFolder)
           testLib.createDir(paths.result + "/" + dateFolder)
@@ -52,13 +51,8 @@ var getDateFolder = function(filePath){
   log.debug("content : " + content)
   var results = []
   dates.forEach(function(date){
-    //results.push(testLib.getAllIndexes(content, date).length > 0)
-    console.log(date)
     results.push(content.indexOf(date) >= 0)
   })
-
-  console.log(content.indexOf("20171218"))
-  console.log(results)
 
   var resultObject = _.countBy(results)
   switch(resultObject.true){

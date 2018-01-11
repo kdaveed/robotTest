@@ -11,6 +11,5 @@ test.setDate(date)
 test.copyEmihFiles()
 test.renameEMIHFolders()
 test.getCSFiles()
-
-// test.getFolderDescriptors()
+test.getFolderDescriptors()
 // test.performTests()
