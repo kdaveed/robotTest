@@ -2,6 +2,7 @@
 
 var fs = require("fs")
 var copyDir = require("copy-dir")
+const testLib = require('../testLib').testLib;
 
 if (process.argv.length <= 2) {
     console.log("Usage: merge.js destdir sDir1 sDir2 .. sDirN");

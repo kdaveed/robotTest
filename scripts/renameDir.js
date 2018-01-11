@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var fs = require("fs")
+const testLib = require('../testLib').testLib;
 
 if (process.argv.length <= 3) {
     console.log("Usage: renameDir.js dir nameMap");

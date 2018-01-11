@@ -2,6 +2,7 @@
 
 var fs = require("fs")
 var copyDir = require("copy-dir")
+const testLib = require('../testLib').testLib;
 
 if (process.argv.length <= 2) {
     console.log("Usage: folderDescriptor.js dir output");
@@ -23,7 +24,13 @@ var getDescriptor = function(folderPath){
     if(fileStat.isDirectory()){
       object.folders[subFolder] = getDescriptor(subPath)
     } else {
-      object.files[subFolder] = fileStat.size
+      if(object.files[fileStat.size] === undefined){
+        object.files[fileStat.size] = []
+      } else {
+        //Check if not duplicates
+
+      }
+      object.files[fileStat.size].push(subFolder)
     }
   })
   if(Object.keys(object.files).length === 0) delete object.files
