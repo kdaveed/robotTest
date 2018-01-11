@@ -31,3 +31,5 @@ var renameSubFolders = function(dir){
 }
 
 renameSubFolders(dir)
+
+exports.renameDir = renameDir

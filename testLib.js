@@ -97,6 +97,23 @@ var testLib = {
       //Continoue
   },
 
+  renameSubFolders : function(map, dir){
+
+    fs.readdirSync(dir).forEach((function(subFolder){
+      var subFolderPath = dir + "/" + subFolder
+      log.debug("subFolderPath", subFolderPath)
+      if(fs.lstatSync(subFolderPath).isDirectory()){
+        if(map[subFolder] !== undefined){
+          console.log(dir + "/" + subFolder, dir + "/" + map[subFolder])
+          fs.renameSync(subFolderPath, dir + "/" + map[subFolder])
+          this.renameSubFolders(map, dir + "/" + map[subFolder])
+        } else {
+          this.renameSubFolders(map, subFolderPath)
+        }
+      }
+    }).bind(this))
+  },
+
   //Process steps
   copyFiles : function(){
     var sourceDir = this.path.emih_data_text + this.date
@@ -107,20 +124,10 @@ var testLib = {
 
   renameEMIHFolders : function(){
 
-    var nameMap = ".mappings/emihToID.json"
+    var nameMap = "./mappings/csToID.json"
     var map = JSON.parse(fs.readFileSync(nameMap,  'utf8'))
-    fs.readdirSync(dir).forEach((function(subFolder){
-      var subFolderPath = dir + "/" + subFolder
-      if(fs.lstatSync(subFolderPath).isDirectory()){
-        if(map[subFolder] !== undefined){
-          console.log(dir + "/" + subFolder, dir + "/" + map[subFolder])
-          fs.renameSync(subFolderPath, dir + "/" + map[subFolder])
-          this.renameSubFolders(dir + "/" + map[subFolder])
-        } else {
-          this.renameSubFolders(subFolderPath)
-        }
-      }
-    }).bind(this))
+    console.log(map)
+    this.renameSubFolders(map, this.path.result_text + this.date)
   },
 
   getFolderDescriptors : function(){

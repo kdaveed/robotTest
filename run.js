@@ -9,6 +9,6 @@ console.log(date)
 
 test.setDate(date)
 test.copyFiles()
-// test.renameEMIHFolders()
+test.renameEMIHFolders()
 // test.getFolderDescriptors()
 // test.performTests()
