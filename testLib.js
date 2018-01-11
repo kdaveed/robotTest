@@ -5,6 +5,8 @@ var copyDir = require("copy-dir")
 log.setLevel("debug")
 
 var root = "/Library/CloudStorm/RPA_Test/"
+var grnt = "/Library/CloudStorm/cs-rpa-templates/emih-bank-granit-statement1/collection/"
+var kdb = "/Library/CloudStorm/cs-rpa-templates/emih-bank-kdb-statement1/collection/"
 
 var testLib = {
 
@@ -101,10 +103,8 @@ var testLib = {
 
     fs.readdirSync(dir).forEach((function(subFolder){
       var subFolderPath = dir + "/" + subFolder
-      log.debug("subFolderPath", subFolderPath)
       if(fs.lstatSync(subFolderPath).isDirectory()){
         if(map[subFolder] !== undefined){
-          console.log(dir + "/" + subFolder, dir + "/" + map[subFolder])
           fs.renameSync(subFolderPath, dir + "/" + map[subFolder])
           this.renameSubFolders(map, dir + "/" + map[subFolder])
         } else {
@@ -115,9 +115,11 @@ var testLib = {
   },
 
   //Process steps
-  copyFiles : function(){
+  copyEmihFiles : function(){
     var sourceDir = this.path.emih_data_text + this.date
-    var destDir = this.path.result_text + this.date
+    var destDir = this.path.test_input_emih_text + this.date
+    this.createDir(destDir)
+    this.deleteFolderRecursive(destDir)
     log.debug("sourceDir : ", sourceDir, "\ndestdir : ", destDir)
     copyDir.sync(sourceDir, destDir)
   },
@@ -127,7 +129,15 @@ var testLib = {
     var nameMap = "./mappings/csToID.json"
     var map = JSON.parse(fs.readFileSync(nameMap,  'utf8'))
     console.log(map)
-    this.renameSubFolders(map, this.path.result_text + this.date)
+    this.renameSubFolders(map, this.path.test_input_emih_text + this.date)
+  },
+
+  getCSFiles : function(){
+
+    copyDir.sync(grnt + this.date, this.path.test_input_cs_text + this.date)
+    copyDir.sync(kdb + this.date, this.path.test_input_cs_text + this.date)
+
+
   },
 
   getFolderDescriptors : function(){

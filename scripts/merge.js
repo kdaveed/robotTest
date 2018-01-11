@@ -18,7 +18,6 @@ for(var i = 2; i < process.argv.length; i++){
   sourceDir = process.argv[i]
   console.log(sourceDir, destdir)
   copyDir.sync(sourceDir, destdir)
-
   // fs.readdirSync.forEach(function(subFolder){
   //   if(fs.existsSync(destdir + "/" + subFolder)){
   //     //Copy the content

@@ -8,7 +8,9 @@ var date = process.argv[2]
 console.log(date)
 
 test.setDate(date)
-test.copyFiles()
+test.copyEmihFiles()
 test.renameEMIHFolders()
+test.getCSFiles()
+
 // test.getFolderDescriptors()
 // test.performTests()
