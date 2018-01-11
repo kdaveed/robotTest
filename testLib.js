@@ -1,8 +1,33 @@
 var fs = require('fs')
 var log = require('loglevel');
-//log.setLevel("debug")
+var copyDir = require("copy-dir")
+
+log.setLevel("debug")
+
+var root = "/Library/CloudStorm/RPA_Test/"
 
 var testLib = {
+
+  mappings : {
+    emihToID : root + "mappings",
+  },
+
+  path : {
+    emih_data_text : root + "EMIH_DATA/TEXT/",
+    emih_date_pdf : root + "EMIH_DATA/PDF/",
+    test_input_emih_text : root + "TEST_INPUT/EMIH/TEXT/",
+    test_input_cs_text : root + "TEST_INPUT/CS/TEXT/",
+    result_text : root + "TEST_RESULT/TEXT/",
+    result_pdf : root + "TEST_RESULT/PDF/",
+  },
+
+  setDate : function(date){
+    this.date = date
+  },
+
+  writeJSON : function(path, json){
+    fs.writeFileSync(path, JSON.stringify(json, null, 2))
+  },
 
   getFolderVars : function(folder){
     folder = "./" + folder
@@ -70,15 +95,48 @@ var testLib = {
         }
       }
       //Continoue
-  }
+  },
 
+  //Process steps
+  copyFiles : function(){
+    var sourceDir = this.path.emih_data_text + this.date
+    var destDir = this.path.result_text + this.date
+    log.debug("sourceDir : ", sourceDir, "\ndestdir : ", destDir)
+    copyDir.sync(sourceDir, destDir)
+  },
+
+  renameEMIHFolders : function(){
+
+    var nameMap = ".mappings/emihToID.json"
+    var map = JSON.parse(fs.readFileSync(nameMap,  'utf8'))
+    fs.readdirSync(dir).forEach((function(subFolder){
+      var subFolderPath = dir + "/" + subFolder
+      if(fs.lstatSync(subFolderPath).isDirectory()){
+        if(map[subFolder] !== undefined){
+          console.log(dir + "/" + subFolder, dir + "/" + map[subFolder])
+          fs.renameSync(subFolderPath, dir + "/" + map[subFolder])
+          this.renameSubFolders(dir + "/" + map[subFolder])
+        } else {
+          this.renameSubFolders(subFolderPath)
+        }
+      }
+    }).bind(this))
+  },
+
+  getFolderDescriptors : function(){
+
+  },
+
+  performTests : function(){
+
+  },
 }
 
 exports.testLib = testLib
 
-
 //Tests
 var string = "abc________abc_________abc"
 var key = "abc"
+
 
 //var indexes = testLib.getAllIndexes_2(string, key)
