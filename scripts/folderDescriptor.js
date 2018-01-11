@@ -23,9 +23,7 @@ var getDescriptor = function(folderPath){
     if(fileStat.isDirectory()){
       object.folders[subFolder] = getDescriptor(subPath)
     } else {
-      object.files[subFolder] = {
-        size : fileStat.size
-      }
+      object.files[subFolder] = fileStat.size
     }
   })
   if(Object.keys(object.files).length === 0) delete object.files
