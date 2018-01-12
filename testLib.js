@@ -3,7 +3,7 @@ var log = require('loglevel');
 var copyDir = require("copy-dir")
 var _ = require('underscore')
 
-//log.setLevel("debug")
+log.setLevel("debug")
 
 var root = "/Library/CloudStorm/RPA_Test/"
 var grnt = "/Library/CloudStorm/cs-rpa-templates/emih-bank-granit-statement1/collection/"
@@ -138,6 +138,8 @@ var testLib = {
     for(key in object){
       if(object[key].length == 0) delete object[key]
     }
+    if(Object.keys(object).length == 1 && Object.keys(object)[0] == "both")
+      object = "OK"
     return object
   },
 
@@ -193,7 +195,7 @@ var testLib = {
               different = false
             }
           })
-          if(different || true) object.files[fileStat.size].push(subFolder)
+          if(different) object.files[fileStat.size].push(subFolder)
         }
       }
     }).bind(this))
@@ -203,9 +205,52 @@ var testLib = {
     return object
   },
 
+  mergeCSDirs : function(){
+
+    var duplicates = [
+        {
+          //chabad
+          from : "0872750",
+          to : "00013458"
+        },{
+          //emih
+          from : "0872900",
+          to : "00003459"
+        }, {
+          //oloesz
+          from : "1293365",
+          to : "00025085"
+        }, {
+          //emih_obuda
+          from : "1297523",
+          to : "00026106"
+        }, {
+          //Maimonidesz_okt_kozp
+          from : "1281007",
+          to : "00039933",
+        }
+    ]
+
+    duplicates.forEach((function(duplicate){
+      var sourceDir = this.path.test_input_cs_text +
+        this.date + "/" + duplicate.from
+      var destDir = this.path.test_input_cs_text +
+        this.date + "/" + duplicate.to
+      log.debug("sourceDir : ", sourceDir, "\ndestdir : ", destDir)
+      if(fs.existsSync(sourceDir)){
+        log.debug("exists")
+        this.createDir(destDir)
+        copyDir.sync(sourceDir, destDir)
+        this.deleteFolderRecursive(sourceDir)
+      }
+
+    }).bind(this))
+  },
 
   //Process steps
   copyEmihFiles : function(){
+
+    log.debug("copyEmihFiles")
     var sourceDir = this.path.emih_data_text + this.date
     var destDir = this.path.test_input_emih_text + this.date
     this.createDir(destDir)
@@ -216,6 +261,7 @@ var testLib = {
 
   renameEMIHFolders : function(){
 
+    log.debug("renameEMIHFolders")
     var nameMap = "./mappings/emihToID.json"
     var map = JSON.parse(fs.readFileSync(nameMap,  'utf8'))
     this.renameSubFolders(map, this.path.test_input_emih_text + this.date)
@@ -223,6 +269,7 @@ var testLib = {
 
   getCSFiles : function(){
 
+    log.debug("getCSFiles")
     var destDir = this.path.test_input_cs_text + this.date
     this.deleteFolderRecursive(destDir)
     copyDir.sync(grnt + this.date, destDir)
@@ -230,6 +277,8 @@ var testLib = {
   },
 
   getFolderDescriptors : function(){
+
+    log.debug("getFolderDescriptors")
     var outputPath =  this.path.result_text + this.date
     this.createDir(outputPath)
 
@@ -245,8 +294,10 @@ var testLib = {
 
   performTests : function(){
 
+    log.debug("performTests")
     var outputPath =  this.path.result_text + this.date
     var res = this.compare(this.getJSON(outputPath + "/cs.json"), this.getJSON(outputPath + "/emih.json"))
+    this.writeJSON(outputPath + "/result.json", res)
     console.log(JSON.stringify(res, null, 2))
   },
 }
