@@ -3,7 +3,7 @@ var log = require('loglevel');
 var copyDir = require("copy-dir")
 var _ = require('underscore')
 
-log.setLevel("debug")
+//log.setLevel("debug")
 
 var root = "/Library/CloudStorm/RPA_Test/"
 var grnt = "/Library/CloudStorm/cs-rpa-templates/emih-bank-granit-statement1/collection/"
@@ -135,15 +135,22 @@ var testLib = {
         object.sizeNotMatches.push(size)
       }
     })
+    for(key in object){
+      if(object[key].length == 0) delete object[key]
+    }
     return object
   },
 
   compareLists : function(cs, emih){
-    return {
+    var object = {
       both : _.intersection(cs, emih),
       missingFolderFromEMIH : _.difference(cs, emih),
       missingFolderFromCS : _.difference(emih, cs),
     }
+    for(key in object){
+      if(object[key].length == 0) delete object[key]
+    }
+    return object
   },
 
   renameSubFolders : function(map, dir){
@@ -175,8 +182,19 @@ var testLib = {
       } else {
         if(object.files[fileStat.size] === undefined){
           object.files[fileStat.size] = []
+          object.files[fileStat.size].push(subFolder)
+        } else {
+          //Check if not existing
+          var different = true
+          object.files[fileStat.size].forEach(function(fileName){
+            var content = fs.readFileSync(`${folderPath}/${fileName}`, 'utf8')
+            var currentContent = fs.readFileSync(`${folderPath}/${subFolder}`, 'utf8')
+            if(content == currentContent){
+              different = false
+            }
+          })
+          if(different || true) object.files[fileStat.size].push(subFolder)
         }
-        object.files[fileStat.size].push(subFolder)
       }
     }).bind(this))
     if(Object.keys(object.files).length === 0) delete object.files
@@ -229,7 +247,7 @@ var testLib = {
 
     var outputPath =  this.path.result_text + this.date
     var res = this.compare(this.getJSON(outputPath + "/cs.json"), this.getJSON(outputPath + "/emih.json"))
-    console.log(res)
+    console.log(JSON.stringify(res, null, 2))
   },
 }
 
