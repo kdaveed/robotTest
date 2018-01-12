@@ -2,8 +2,14 @@
 
 var fs = require('fs')
 
+if (process.argv.length <= 2) {
+    console.log("Usage: ***.js date");
+    process.exit(-1);
+}
 
-var map = {
+var date = process.argv[2]
+
+var folderMap = {
      "0872750" : "chabad",
      "0872900" : "emih",
      "1091420" : "oasz",
@@ -52,31 +58,58 @@ var map = {
      "00041567" : "madi_chewra_kadisha"
 }
 
+var path1 = "./csResult/"
+var path2 = "./emih_data_dec/result"
 
-var csFolder = "./csResult/"
-var emihFolder = "./emih_data_dec/result"
-var file = { cs : {}, emih : {}}
-
-var compare = {
-  match : [],
-  missing : {
-    cs : [],
-    emih : [],
-  },
-}
+var key1 = "cs"
+var key2 = "emih"
 
 var run = function(){
-
-  for(key in map){
-    var csPath = csFolder + map[key]
-    var emihPath = emihFolder + map[key]
-    setFile(csPath, "cs")
-    setFile(emihPath, "emih")
-  }
+  var file = prepare()
+  data = getDataFromFiles(file)
+  return processMap(data)
 }
 
-//compare()
+var prepare = function(){
 
+  var x = {}
+  x[key1] = {}
+  x[key2] = {}
+  return x;
+}
+
+var getDataFromFiles = function(file){
+
+  //Read the files in
+  for(key in folderMap){
+    var fullPath1 = path1 + folderMap[key]
+    var fullPath2 = path2 + folderMap[key]
+    setFile(fullPath1, key1)
+    setFile(fullPath2, key2)
+  }
+  return files
+}
+
+var processMap = function(fileData){
+
+  var result = {
+    match : [],
+    missing : {
+      cs : [],
+      emih : [],
+    },
+    duplicates : {
+      cs : [],
+      emih : [],
+    }
+  }
+
+  checkDuplicates(fileData.emih)
+  checkDuplicates(fileData.cs)
+  return compare(fileData, "cs", "emih")
+}
+
+//Reading the file contents into the JS object
 var setFile = function(path, type){
   if(fs.existsSync(path)){
     //Read in files
@@ -86,14 +119,7 @@ var setFile = function(path, type){
   }
 }
 
-var run = function(){
-
-  checkDuplicates("cs")
-  checkDuplicates("emih")
-  compare("cs", "emih")
-}
-
-var compare = function(files, type1, type2){
+var compare = function(files){
 
   var compare = {
     match : [],
@@ -104,27 +130,27 @@ var compare = function(files, type1, type2){
   }
 
   //Compare
-  for(fileName1 in files[type1]){
-    content1 = files[type1][fileName1]
-    for(fileName2 in files[type2]){
-      content2 = files[type2][fileName2]
+  for(fileName1 in files[key1]){
+    content1 = files[key1][fileName1]
+    for(fileName2 in files[key2]){
+      content2 = files[key2][fileName2]
       if(content1 == content2){
         var match = {}
-        match[type1] = fileName1
-        match[type2] = fileName2
+        match[key1] = fileName1
+        match[key2] = fileName2
         compare.match.push(match)
-        delete files[type1][fileName1]
-        delete files[type2][fileName2]
+        delete files[key1][fileName1]
+        delete files[key2][fileName2]
       }
     }
   }
 
   //Set missing files
-  for(fileName1 in files[type1]){
-    compare.missing[type1].push(fileName1)
+  for(fileName1 in files[key1]){
+    compare.missing[key1].push(fileName1)
   }
-  for(fileName2 in files[type2]){
-    compare.missing[type2].push(fileName2)
+  for(fileName2 in files[key2]){
+    compare.missing[key2].push(fileName2)
   }
 
   return compare;
@@ -139,9 +165,6 @@ var checkDuplicates = function(fileMap){
     contents.push(fileMap[fileName])
     fileNames.push(fileName)
   }
-
-  console.log(contents)
-  console.log(fileNames)
 
   contents.forEach(function(content, index){
     contents.forEach(function(innerContent, innerIndex){
@@ -179,7 +202,23 @@ var compareTest = {
   }
 }
 
-checkDuplicates(fileMap)
-console.log(fileMap)
+var test = {
 
-console.log(compare(compareTest, "cs", "emih"))
+  duplicate : function(){
+    console.log("Duplicate elimination test")
+    console.log(fileMap)
+    checkDuplicates(fileMap)
+    console.log(fileMap)
+  },
+
+  compare : function(){
+    console.log("Comparisom test")
+    console.log(compareTest)
+    console.log(compare(compareTest))
+  }
+}
+
+// test.duplicate()
+// test.compare()
+
+run()

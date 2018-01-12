@@ -228,6 +228,10 @@ var testLib = {
           //Maimonidesz_okt_kozp
           from : "1281007",
           to : "00039933",
+        }, {
+          //maimonidesz
+          from : "1285847",
+          to : "00039931"
         }
     ]
 
