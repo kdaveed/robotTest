@@ -20,7 +20,7 @@ const testLib = require('../testLib').testLib;
 var cs = ["a", "b"]
 var emih = ["b", "c"]
 
-var run = function(cs, emih){
+var compare = function(cs, emih){
 
   var diffObject = compareLists(Object.keys(cs.folders), Object.keys(emih.folders))
   var csFolders = cs.folders

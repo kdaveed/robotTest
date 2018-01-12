@@ -1,6 +1,7 @@
 var fs = require('fs')
 var log = require('loglevel');
 var copyDir = require("copy-dir")
+var _ = require('underscore')
 
 log.setLevel("debug")
 
@@ -29,6 +30,10 @@ var testLib = {
 
   writeJSON : function(path, json){
     fs.writeFileSync(path, JSON.stringify(json, null, 2))
+  },
+
+  getJSON : function(path){
+    return JSON.parse(fs.readFileSync(path, "utf8"))
   },
 
   getFolderVars : function(folder){
@@ -99,6 +104,48 @@ var testLib = {
       //Continoue
   },
 
+  compare : function(cs, emih){
+
+    var diffObject = this.compareLists(Object.keys(cs.folders), Object.keys(emih.folders))
+    var csFolders = cs.folders
+    var emihFolders = emih.folders
+    diffObject.matches = {}
+    log.debug("compare:both: ", diffObject.both)
+    diffObject.both.forEach((function(key){
+      csObject =  csFolders[key].files
+      emihObject = emihFolders[key].files
+      diffObject.matches[key] = this.compareListsArray(csObject, emihObject)
+    }).bind(this))
+    return diffObject
+  },
+
+  compareListsArray : function(csObject, emihObject){
+    var cs = Object.keys(csObject)
+    var emih = Object.keys(emihObject)
+    log.debug("csKeys :", cs, "emihKeys", emih)
+    var object = {
+      both : _.intersection(cs, emih),
+      missingFromEMIH : _.difference(cs, emih),
+      missingFromCS : _.difference(emih, cs),
+      sizeNotMatches : [],
+    }
+    log.debug("compare:both: ", object.both)
+    object.both.forEach(function(size){
+      if(csObject[size].length !== emihObject[size].length){
+        object.sizeNotMatches.push(size)
+      }
+    })
+    return object
+  },
+
+  compareLists : function(cs, emih){
+    return {
+      both : _.intersection(cs, emih),
+      missingFolderFromEMIH : _.difference(cs, emih),
+      missingFolderFromCS : _.difference(emih, cs),
+    }
+  },
+
   renameSubFolders : function(map, dir){
 
     fs.readdirSync(dir).forEach((function(subFolder){
@@ -151,7 +198,7 @@ var testLib = {
 
   renameEMIHFolders : function(){
 
-    var nameMap = "./mappings/csToID.json"
+    var nameMap = "./mappings/emihToID.json"
     var map = JSON.parse(fs.readFileSync(nameMap,  'utf8'))
     this.renameSubFolders(map, this.path.test_input_emih_text + this.date)
   },
@@ -175,10 +222,14 @@ var testLib = {
     //EMIH
     var emih = this.getDescriptor(this.path.test_input_emih_text + this.date)
     fs.writeFileSync(outputPath + "/emih.json", JSON.stringify(emih, null, 2))
+
   },
 
   performTests : function(){
 
+    var outputPath =  this.path.result_text + this.date
+    var res = this.compare(this.getJSON(outputPath + "/cs.json"), this.getJSON(outputPath + "/emih.json"))
+    console.log(res)
   },
 }
 
